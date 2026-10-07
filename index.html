@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EkstraX — your credit card statement, read for you</title>
+<meta name="description" content="EkstraX analyzes your credit card statements, tracks your spending habits and shows what your balance will really cost you.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #EEF2F0;      /* bank security paper */
+    --sheet: #FBFCFB;      /* the statement itself */
+    --ink: #14213D;        /* statement navy */
+    --ink-soft: #5B6B7F;
+    --rule: #C9D3CF;
+    --marker: #FFE45C;     /* highlighter */
+    --debit: #B23A26;
+    --display: "Archivo", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--paper); color: var(--ink); font: 400 17px/1.6 var(--display); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  header { display: flex; justify-content: space-between; align-items: center; padding: 28px 0; }
+  .mark { font-weight: 800; font-stretch: 125%; letter-spacing: -0.02em; font-size: 22px; text-decoration: none; }
+  .mark span { background: var(--marker); padding: 0 2px; }
+  header a.mail { font: 500 14px var(--mono); color: var(--ink-soft); }
+
+  .hero { display: grid; grid-template-columns: 1fr 1.05fr; gap: 56px; align-items: center; padding: 40px 0 88px; }
+  h1 { font-weight: 800; font-stretch: 112%; font-size: clamp(40px, 5.6vw, 68px); line-height: 1.02; letter-spacing: -0.035em; }
+  h1 em { font-style: normal; font-stretch: 62%; font-weight: 500; letter-spacing: -0.01em; }
+  .lede { margin-top: 24px; max-width: 30em; color: var(--ink-soft); font-size: 19px; }
+  .cta { display: inline-block; margin-top: 32px; background: var(--ink); color: var(--sheet); text-decoration: none; font-weight: 600; padding: 14px 22px; border-radius: 8px; }
+  .cta:hover { background: #22345C; }
+  .status { margin-top: 16px; font: 400 13px var(--mono); color: var(--ink-soft); }
+
+  /* the statement */
+  .sheet { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 22px 24px 26px; font: 400 13.5px/1.5 var(--mono); box-shadow: 0 1px 0 var(--rule), 0 24px 48px -28px rgba(20,33,61,.35); }
+  .sheet-head { display: flex; justify-content: space-between; color: var(--ink-soft); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; padding-bottom: 12px; border-bottom: 1px dashed var(--rule); }
+  .row { display: grid; grid-template-columns: 46px 1fr auto; column-gap: 12px; align-items: baseline; padding: 9px 0; border-bottom: 1px dotted var(--rule); }
+  .row .amt { text-align: right; font-variant-numeric: tabular-nums; }
+  .tag { grid-column: 2 / 4; justify-self: start; margin-top: 4px; font: 600 11.5px var(--display); letter-spacing: .02em; color: var(--ink); border: 1px solid var(--ink); border-radius: 99px; padding: 1px 9px; }
+  .more { color: var(--ink-soft); padding: 9px 0 14px; }
+  .total { display: flex; justify-content: space-between; padding: 6px 0; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .hl { background: linear-gradient(transparent 12%, var(--marker) 12%, var(--marker) 88%, transparent 88%) no-repeat 0 0 / 100% 100%; margin: 0 -6px; padding: 6px; }
+  .note { margin-top: 14px; padding-left: 12px; border-left: 3px solid var(--debit); font: 500 14px/1.5 var(--display); color: var(--ink); }
+  .note b { color: var(--debit); font-variant-numeric: tabular-nums; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .tag, .note { opacity: 0; animation: in .5s ease forwards; }
+    .row:nth-child(2) .tag { animation-delay: .5s; }
+    .row:nth-child(3) .tag { animation-delay: .7s; } .row:nth-child(4) .tag { animation-delay: .9s; }
+    .row:nth-child(5) .tag { animation-delay: 1.1s; } .row:nth-child(6) .tag { animation-delay: 1.3s; }
+    .hl { background-size: 0 100%; animation: swipe .7s 1.7s cubic-bezier(.6,0,.3,1) forwards; }
+    .note { animation-delay: 2.4s; }
+    @keyframes in { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+    @keyframes swipe { to { background-size: 100% 100%; } }
+  }
+
+  section.reads { border-top: 1px solid var(--rule); padding: 72px 0; }
+  h2 { font-weight: 800; font-stretch: 112%; font-size: 30px; line-height: 1.15; letter-spacing: -0.02em; }
+  .lines { margin-top: 28px; list-style: none; padding: 0; }
+  .lines li { display: grid; grid-template-columns: minmax(200px, 300px) 1fr; gap: 24px; padding: 18px 0; border-bottom: 1px dotted var(--rule); }
+  .lines li:last-child { border-bottom: 0; }
+  .lines b { font-weight: 700; }
+  .lines span { color: var(--ink-soft); }
+
+  .privacy { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; border-top: 1px solid var(--rule); padding: 72px 0; }
+  .privacy p { color: var(--ink-soft); }
+  .privacy p + p { margin-top: 14px; }
+
+  footer { border-top: 1px solid var(--rule); padding: 28px 0 48px; display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; font: 400 13px var(--mono); color: var(--ink-soft); }
+
+  @media (max-width: 860px) {
+    .hero, .privacy { grid-template-columns: 1fr; gap: 40px; }
+    .lines li { grid-template-columns: 1fr; gap: 4px; }
+    .sheet { padding: 18px 16px 22px; font-size: 12.5px; }
+    .row { grid-template-columns: 40px 1fr auto; column-gap: 8px; }
+  }
+  @media (max-width: 480px) { .wrap { padding: 0 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="mark" href="/">Ekstra<span>X</span></a>
+    <a class="mail" href="mailto:tech@runcode.me">tech@runcode.me</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <h1>Your credit card statement, <em>read for you.</em></h1>
+        <p class="lede">EkstraX analyzes your credit card statements, tracks your spending habits and shows what your balance will really cost you — before the due date, not after.</p>
+        <a class="cta" href="mailto:tech@runcode.me?subject=EkstraX%20early%20access">Email us for early access</a>
+        <p class="status">In development · Built for credit card users in Türkiye</p>
+      </div>
+
+      <div class="sheet" role="img" aria-label="Sample statement annotated by EkstraX: each transaction is tagged with a category, and the minimum payment line is highlighted with a note about what rolls over to next month.">
+        <div class="sheet-head"><span>Ekstre · Dönem 09/2026</span><span>Sample</span></div>
+        <div class="row"><span>03.09</span><span>MARKET ALIŞVERİŞİ</span><span class="amt">1.248,60</span><span class="tag">Groceries</span></div>
+        <div class="row"><span>06.09</span><span>AKARYAKIT</span><span class="amt">2.150,00</span><span class="tag">Fuel</span></div>
+        <div class="row"><span>09.09</span><span>ONLINE ALIŞVERİŞ 2/6</span><span class="amt">1.833,33</span><span class="tag">Installment 2 of 6 · 4 left</span></div>
+        <div class="row"><span>14.09</span><span>RESTORAN</span><span class="amt">964,00</span><span class="tag">Dining</span></div>
+        <div class="row"><span>21.09</span><span>FATURA ÖDEMESİ</span><span class="amt">1.120,45</span><span class="tag">Bills</span></div>
+        <div class="more">… 23 more transactions</div>
+        <div class="total"><span>Dönem borcu</span><span>18.420,55</span></div>
+        <div class="total hl"><span>Asgari ödeme</span><span>5.526,17</span></div>
+        <p class="note">Pay only the minimum and <b>₺12.894,38</b> rolls into next month — with interest, KKDF and BSMV added on top.</p>
+      </div>
+    </section>
+
+    <section class="reads">
+      <h2>What EkstraX reads for you</h2>
+      <ul class="lines">
+        <li><b>Your statement PDF</b><span>Upload the PDF your bank sends you. EkstraX extracts every transaction, fee and total — starting with Enpara, more banks in progress.</span></li>
+        <li><b>Where your money goes</b><span>Each transaction is sorted into a category, so spending patterns show up without a spreadsheet.</span></li>
+        <li><b>Installments</b><span>See every installment plan, how much is left, and how many months it will keep showing up.</span></li>
+        <li><b>Month over month</b><span>Compare statements to see which categories are growing and which you've brought under control.</span></li>
+        <li><b>Next month's balance</b><span>A projection of what you'll owe next month, based on installments and what you pay now.</span></li>
+        <li><b>The real cost</b><span>Interest, KKDF and BSMV calculated on your actual balance, so minimum vs. full payment is a clear number, not a guess.</span></li>
+      </ul>
+    </section>
+
+    <section class="privacy">
+      <h2>Your statement stays yours</h2>
+      <div>
+        <p>A credit card statement is one of the most personal documents you own. EkstraX is designed privacy-first: personal details are masked before any analysis, and your statements are not stored on our servers.</p>
+        <p>The math — interest, taxes, installments — is done deterministically. The AI layer, powered by Claude, reads the statement and explains the results in plain language.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>EkstraX is built by RunCode · runcode.me</span>
+    <span><a href="mailto:tech@runcode.me">tech@runcode.me</a> · <a href="https://github.com/ofurkanuygur">GitHub</a></span>
+  </footer>
+</div>
+</body>
+</html>
